@@ -1,0 +1,18 @@
+{
+  "name": "@liquid-labs/catalyst-users-api",
+  "version": "0.0.1",
+  "description": "API for typical user and account management.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liquid-Labs/catalyst-users-api.git"
+  },
+  "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Liquid-Labs/catalyst-users-api/issues"
+  },
+  "homepage": "https://github.com/Liquid-Labs/catalyst-users-api#readme"
+}
