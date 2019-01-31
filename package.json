@@ -2,7 +2,11 @@
   "name": "@liquid-labs/catalyst-persons-api",
   "version": "0.0.1",
   "description": "API for typical user, person, and account profile management.",
+  "bin": {
+    "users-api-service.sh": "./bin/users-api-service.sh"
+  },
   "scripts": {
+    "build": "cd go && go build ./...",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,5 +18,38 @@
   "bugs": {
     "url": "https://github.com/Liquid-Labs/catalyst-persons-api/issues"
   },
-  "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme"
+  "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
+  "_catServices": [
+    {
+      "name": "users-api",
+      "interface-classes": [
+        "api-usersapi"
+      ],
+      "platform-types": [
+        "local",
+        "gcp"
+      ],
+      "purposes": [
+        "any"
+      ],
+      "ctrl-scripts": [
+        "users-api-service.sh"
+      ],
+      "params-req": [
+        "CLOUDSQL_INSTANCE_NAME",
+        "CLOUDSQL_CONNECTION_PROT",
+        "CLOUDSQL_CONNECTION_NAME",
+        "CLOUDSQL_CREDS",
+        "CLOUDSQL_DB",
+        "USERS_API_PORT"
+      ],
+      "params-opt": []
+    }
+  ],
+  "devDependencies": {
+    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz"
+  },
+  "_catalystRequiresService": [
+    "sql-mysql"
+  ]
 }
