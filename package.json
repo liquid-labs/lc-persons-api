@@ -21,9 +21,9 @@
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
   "_catServices": [
     {
-      "name": "users-api",
+      "name": "user-api",
       "interface-classes": [
-        "api-usersapi"
+        "usersApi"
       ],
       "platform-types": [
         "local",
@@ -50,6 +50,7 @@
     "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz"
   },
   "_catalystRequiresService": [
-    "sql-mysql"
+    "sql-mysql",
+    "usersApi"
   ]
 }
