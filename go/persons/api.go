@@ -16,5 +16,5 @@ func InitAPI(r *mux.Router) {
 
   rUsers := r.PathPrefix("/persons/").Subrouter()
 
-  rUsers.HandleFunc("/", pingHandler).Methods("GET")
+  rUsers.HandleFunc("/", pingHandler).Methods("PING")
 }
