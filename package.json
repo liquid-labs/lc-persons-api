@@ -19,38 +19,35 @@
     "url": "https://github.com/Liquid-Labs/catalyst-persons-api/issues"
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
-  "_catServices": [
+  "devDependencies": {
+    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz"
+  },
+  "_catalystRequiresService": [
     {
-      "name": "user-api",
-      "interface-classes": [
-        "usersApi"
-      ],
-      "platform-types": [
-        "local",
-        "gcp"
-      ],
-      "purposes": [
-        "any"
-      ],
-      "ctrl-scripts": [
-        "users-api-service.sh"
-      ],
+      "iface": "sql-mysql",
+      "params-req": [],
+      "params-opt": [],
+      "config-const": []
+    },
+    {
+      "iface": "http-rest",
       "params-req": [
         "CLOUDSQL_INSTANCE_NAME",
         "CLOUDSQL_CONNECTION_PROT",
         "CLOUDSQL_CONNECTION_NAME",
         "CLOUDSQL_CREDS",
         "CLOUDSQL_DB",
-        "USERS_API_PORT"
+        "CLOUDSQL_USER",
+        "CLOUDSQL_PASSWORD",
+        "GCP_PROJECT_ID",
+        "FIREBASE_DB_URL",
+        "FIREBASE_API_KEY"
       ],
-      "params-opt": []
+      "params-opt": [],
+      "config-const": {
+        "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml",
+        "GO_APP_DISPATCH": "@liquid-labs/catalyst-persons-api:go/dispatch.yaml"
+      }
     }
-  ],
-  "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz"
-  },
-  "_catalystRequiresService": [
-    "sql-mysql",
-    "usersApi"
   ]
 }
