@@ -2,7 +2,7 @@ runtime: go111
 
 service: persons
 
-handlers:
-- url: /api/persons/.*
-  secure: always
-  script: _go_app
+#handlers:
+#- url: /api/.*
+#  secure: always
+#  script: auto
