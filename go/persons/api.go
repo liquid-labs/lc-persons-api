@@ -40,11 +40,13 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintf(w, "TODO: POST %s\n", pubId)
 }
 
+const uuidRe = `[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`
+
 func InitAPI(r *mux.Router) {
   r.HandleFunc("/persons/", pingHandler).Methods("PING")
   r.HandleFunc("/persons/", createHandler).Methods("POST")
   r.HandleFunc("/persons/", listHandler).Methods("GET")
-  r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:[0-9]+}/persons/", listHandler).Methods("GET")
-  r.HandleFunc("/persons/{pubId}", detailHandler).Methods("GET")
-  r.HandleFunc("/persons/{pubId}", updateHandler).Methods("PUT")
+  r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:" + uuidRe + "}/persons/", listHandler).Methods("GET")
+  r.HandleFunc("/persons/{pubId:" + uuidRe + "}/", detailHandler).Methods("GET")
+  r.HandleFunc("/persons/{pubId:" + uuidRe + "}/", updateHandler).Methods("PUT")
 }
