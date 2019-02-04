@@ -5,6 +5,8 @@ require (
 	dmitri.shuralyov.com/service/change v0.0.0-20190130035545-6cc139383561 // indirect
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Liquid-Labs/catalyst-core-api v0.4.0
+	github.com/Liquid-Labs/go-nullable-mysql v1.0.2
+	github.com/Liquid-Labs/go-rest v0.1.0
 	github.com/Shopify/sarama v1.20.1 // indirect
 	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
