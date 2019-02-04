@@ -45,8 +45,7 @@
       ],
       "params-opt": [],
       "config-const": {
-        "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml",
-        "GO_APP_DISPATCH": "@liquid-labs/catalyst-persons-api:go/dispatch.yaml"
+        "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml"
       }
     }
   ]
