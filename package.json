@@ -41,7 +41,7 @@
         "CLOUDSQL_PASSWORD",
         "GCP_PROJECT_ID",
         "FIREBASE_DB_URL",
-        "FIREBASE_API_KEY"
+        "FIREBASE_CREDS_FILE"
       ],
       "params-opt": [],
       "config-const": {
