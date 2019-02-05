@@ -11,7 +11,7 @@ import (
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/Liquid-Labs/go-rest/rest"
-  "github.com/Liquid-Labs/catalyst-core-api/go/entities"
+  "github.com/Liquid-Labs/catalyst-core-api/go/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/locations"
 )
 
@@ -109,7 +109,7 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
   p.Addresses.CompleteAddresses(ctx)
 
   var err error
-  newId, restErr := entities.CreateEntity(txn)
+  newId, restErr := users.CreateUserInTxn(&p.User, txn)
   if restErr != nil {
     defer txn.Rollback()
 		return nil, restErr
@@ -129,6 +129,7 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     defer txn.Rollback()
     return nil, restErr
   }
+  txn.Commit()
 
   newPerson, err := GetPersonById(p.Id.Int64)
   if err != nil {
@@ -164,7 +165,7 @@ func GetPersonHelper(stmt *sql.Stmt, id interface{}) (*Person, rest.RestError) {
   var addresses locations.Addresses = make(locations.Addresses, 0)
 	for rows.Next() {
     var err error
-    // The way the scanner works, it has te process all the data each time. :(
+    // The way the scanner works, it processes all the data each time. :(
     // 'person' gets updated with an equivalent structure while we gather up
     // the addresses.
     if person, address, err = ScanPersonDetail(rows); err != nil {

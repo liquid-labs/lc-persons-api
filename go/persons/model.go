@@ -1,7 +1,7 @@
 package persons
 
 import (
-  "github.com/Liquid-Labs/catalyst-core-api/go/entities"
+  "github.com/Liquid-Labs/catalyst-core-api/go/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/locations"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
 )
@@ -10,7 +10,7 @@ import (
 // 'omitempty' on the Person struct won't work because then Persons without
 // an address will appear 'incomplete' in the front-end model and never resolve.
 type PersonSummary struct {
-  entities.Entity
+  users.User
   DisplayName   nulls.String `json:"displayName"`
   Email         nulls.String `json:"email"`
   Phone         nulls.String `json:"phone,string"`
