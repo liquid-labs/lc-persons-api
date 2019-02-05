@@ -26,8 +26,13 @@ func testPersonCreate(t *testing.T) {
   assert.NotEmpty(t, person.PubId, "Unexpected empty public id.")
 }
 
-func TestPersonsSqlSuite(t *testing.T) {
+func testPersonDBSetup(t *testing.T) {
   sqldb.RegisterSetup(entities.SetupDB, users.SetupDB, /*persons.*/SetupDB)
-  sqldb.InitDB() // panics if unabel to initialize
-  t.Run("PersonCreate", testPersonCreate)
+  sqldb.InitDB() // panics if unable to initialize
+}
+
+func TestPersonsSqlSuite(t *testing.T) {
+  if t.Run("PersonsDBSetup", testPersonDBSetup) {
+    t.Run("PersonCreate", testPersonCreate)
+  }
 }
