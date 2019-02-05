@@ -31,7 +31,7 @@ func testPersonDBSetup(t *testing.T) {
   sqldb.InitDB() // panics if unable to initialize
 }
 
-func TestPersonsSqlSuite(t *testing.T) {
+func TestPersonsDBIntegration(t *testing.T) {
   if johnDoePerson == nil {
     t.Error("Person struct not define; can't continue. This probbaly indicates a setup failure in 'model_test.go'.")
   } else {
