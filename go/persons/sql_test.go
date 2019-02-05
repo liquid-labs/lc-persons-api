@@ -1,4 +1,4 @@
-package persons
+package persons_test
 
 import (
   "encoding/json"
@@ -6,6 +6,7 @@ import (
   "strings"
   "testing"
 
+  . "github.com/Liquid-Labs/catalyst-persons-api/go/persons"
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/stretchr/testify/assert"
   "github.com/stretchr/testify/suite"
