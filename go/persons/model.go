@@ -1,6 +1,8 @@
 package persons
 
 import (
+  "regexp"
+
   "github.com/Liquid-Labs/catalyst-core-api/go/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/locations"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
@@ -24,4 +26,15 @@ type Person struct {
   Addresses     locations.Addresses  `json:"addresses"`
   Active        nulls.Bool           `json:"active"`
   ChangeDesc    []string             `json:"changeDesc,omitempty"`
+}
+
+var phoneOutFormatter *regexp.Regexp = regexp.MustCompile(`^(\d{3})(\d{3})(\d{4})$`)
+
+func (p *PersonSummary) FormatOut() {
+  p.Phone.String = phoneOutFormatter.ReplaceAllString(p.Phone.String, `$1-$2-$3`)
+  p.PhoneBackup.String = phoneOutFormatter.ReplaceAllString(p.PhoneBackup.String, `$1-$2-$3`)
+}
+
+func (p *Person) FormatOut() {
+  p.PersonSummary.FormatOut()
 }

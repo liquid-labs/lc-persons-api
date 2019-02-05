@@ -177,6 +177,7 @@ func GetPersonHelper(stmt *sql.Stmt, id interface{}) (*Person, rest.RestError) {
     }
 	}
   person.Addresses = addresses
+  person.FormatOut()
 
 	return person, nil
 }

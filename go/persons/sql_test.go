@@ -2,7 +2,7 @@ package persons_test
 
 import (
   "context"
-  "strings"
+  // "strings"
   "testing"
 
   // the package we're testing
@@ -18,10 +18,9 @@ func testPersonCreate(t *testing.T) {
   person, err := CreatePerson(johnDoePerson, context.Background())
   require.NoError(t, err, "Unexpected error creating Person.")
   require.NotNil(t, person, "Unexpected nil Person on create (with no error).")
-  assert.Equal(t, johnDoeDisplayName, person.DisplayName.String, "Unexpected display name.")
-  assert.Equal(t, johnDoeEmail, person.Email.String, "Unexpected email.")
-  phoneFormatter := strings.NewReplacer("-", "", ".", "", "(", "", ")", "")
-  assert.Equal(t, phoneFormatter.Replace(johnDoePhone), person.Phone.String, "Unexpected phone.")
+  assert.Equal(t, johnDoePerson.DisplayName, person.DisplayName, "Unexpected display name.")
+  assert.Equal(t, johnDoePerson.Email, person.Email, "Unexpected email.")
+  assert.Equal(t, johnDoePerson.Phone, person.Phone, "Unexpected phone.")
   assert.NotEmpty(t, person.Id, "Unexpected empty ID.")
   assert.NotEmpty(t, person.PubId, "Unexpected empty public id.")
 }
