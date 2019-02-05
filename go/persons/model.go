@@ -11,7 +11,7 @@ import (
 // an address will appear 'incomplete' in the front-end model and never resolve.
 type PersonSummary struct {
   entities.Entity
-  DisplayName  nulls.String `json:"name"`
+  DisplayName   nulls.String `json:"displayName"`
   Email         nulls.String `json:"email"`
   Phone         nulls.String `json:"phone,string"`
   PhoneBackup   nulls.String `json:"phoneBackup,string"`

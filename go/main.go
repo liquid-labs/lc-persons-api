@@ -3,9 +3,11 @@ package main
 import (
   "github.com/Liquid-Labs/catalyst-core-api/go/restserv"
   "github.com/Liquid-Labs/catalyst-persons-api/go/persons"
+  "github.com/Liquid-Labs/go-api/sqldb"
 )
 
 func main() {
-  restserv.RegisterResource(persons.InitDB, persons.InitAPI)
+  sqldb.RegisterSetup(persons.InitDB)
+  restserv.RegisterResource(persons.InitAPI)
   restserv.Init()
 }

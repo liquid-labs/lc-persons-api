@@ -7,7 +7,8 @@
   },
   "scripts": {
     "build": "cd go && go build ./...",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-sql": "catalyst data rebuild sql && cd go && go test -run 'sql_test.go' ./..."
   },
   "repository": {
     "type": "git",

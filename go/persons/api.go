@@ -5,7 +5,6 @@ import (
   "net/http"
 
   "github.com/gorilla/mux"
-  "github.com/Liquid-Labs/catalyst-core-api/go/restserv"
 )
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +20,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
   contextType := vars["contextType"]
 
   if contextType == "" {
-    fmt.Fprintf(w, "TODO: %+v\n", r.Context().Value(restserv.FireauthKey))
+    fmt.Fprint(w, "TODO: listing persons")
   } else {
     contextId := vars["contextId"]
     fmt.Fprintf(w, "TODO: in context %s/%s\n", contextType, contextId)

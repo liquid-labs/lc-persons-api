@@ -8,10 +8,9 @@ import (
   "strconv"
   "strings"
 
+  "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/Liquid-Labs/go-rest/rest"
-
-  "github.com/Liquid-Labs/catalyst-core-api/go/restserv"
   "github.com/Liquid-Labs/catalyst-core-api/go/entities"
   "github.com/Liquid-Labs/catalyst-core-api/go/locations"
 )
@@ -97,7 +96,7 @@ func CreatePersonStart(p *Person, ctx context.Context) (*sql.Tx, rest.RestError)
 
   var txn *sql.Tx
   var err error
-  if txn, err = restserv.DB.Begin(); err != nil {
+  if txn, err = sqldb.DB.Begin(); err != nil {
     defer txn.Rollback()
     return nil, rest.ServerError("Could not update customer record.", err)
   }
@@ -171,7 +170,7 @@ func UpdatePersonStart(p *Person, ctx context.Context) (*sql.Tx, rest.RestError)
   }
   var txn *sql.Tx
   var err error
-  if txn, err = restserv.DB.Begin(); err != nil {
+  if txn, err = sqldb.DB.Begin(); err != nil {
     return nil, rest.ServerError("Could not update customer record.", err)
   }
   if (p.Addresses != nil) {
@@ -180,12 +179,6 @@ func UpdatePersonStart(p *Person, ctx context.Context) (*sql.Tx, rest.RestError)
       // TODO: this message could be misleading; like the customer was updated, and just the addresses not
       return nil, restErr
     }
-    /*log.Printf("%+v", p)
-    log.Printf("%v", updatePersonQuery)
-    log.Printf("%v", p.DisplayName)
-    log.Printf("%v", p.Phone)
-    log.Printf("%v", p.Email)
-    log.Printf("%v", p.PhoneBackup)*/
     _, err = txn.Stmt(updatePersonQuery).Exec(p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
     if err != nil {
       defer txn.Rollback()
@@ -198,7 +191,7 @@ func UpdatePersonStart(p *Person, ctx context.Context) (*sql.Tx, rest.RestError)
 
 func UpdatePerson(pubId string, p *Person, ctx context.Context) (*Person, rest.RestError) {
   if pubId != p.PubId.String {
-    return nil, rest.BadRequestError(fmt.Sprintf("Public ID mismatch: %s - %s", pubId, p.PubId), nil)
+    return nil, rest.BadRequestError(fmt.Sprintf("Public ID mismatch: %s - %s", pubId, p.PubId.String), nil)
   }
   if p.Addresses != nil {
     txn, err := UpdatePersonStart(p, ctx)
