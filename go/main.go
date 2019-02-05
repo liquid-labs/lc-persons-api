@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-  sqldb.RegisterSetup(persons.InitDB)
+  sqldb.RegisterSetup(persons.SetupDB)
   restserv.RegisterResource(persons.InitAPI)
   restserv.Init()
 }
