@@ -32,7 +32,11 @@ func testPersonDBSetup(t *testing.T) {
 }
 
 func TestPersonsSqlSuite(t *testing.T) {
-  if t.Run("PersonsDBSetup", testPersonDBSetup) {
-    t.Run("PersonCreate", testPersonCreate)
+  if johnDoePerson == nil {
+    t.Error("Person struct not define; can't continue. This probbaly indicates a setup failure in 'model_test.go'.")
+  } else {
+    if t.Run("PersonsDBSetup", testPersonDBSetup) {
+      t.Run("PersonCreate", testPersonCreate)
+    }
   }
 }
