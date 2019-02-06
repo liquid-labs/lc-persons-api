@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "cd go && go build ./...",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test-sql": "catalyst data rebuild sql && cd go && go test -run 'sql_test.go' ./..."
+    "pretest": "catalyst-scripts.sh pretest",
+    "test": "catalyst-scripts.sh test"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,11 @@
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz"
+    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.6"
+  },
+  "catalyst": {
+    "version": "0.1"
   },
   "_catalystRequiresService": [
     {
