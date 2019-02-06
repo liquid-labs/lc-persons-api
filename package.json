@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "cd go && go build ./...",
-    "pretest": "catalyst-scripts.sh pretest",
-    "test": "catalyst-scripts.sh test"
+    "pretest": "catalyst-scripts pretest",
+    "test": "catalyst-scripts test"
   },
   "repository": {
     "type": "git",
