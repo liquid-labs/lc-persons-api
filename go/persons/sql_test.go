@@ -2,7 +2,7 @@ package persons_test
 
 import (
   "context"
-  // "strings"
+  "os"
   "testing"
 
   // the package we're testing
@@ -31,6 +31,10 @@ func testPersonDBSetup(t *testing.T) {
 }
 
 func TestPersonsDBIntegration(t *testing.T) {
+  if os.Getenv("SKIP_INTEGRATION") == "true" {
+    t.Skip()
+  }
+
   if johnDoePerson == nil {
     t.Error("Person struct not define; can't continue. This probbaly indicates a setup failure in 'model_test.go'.")
   } else {
