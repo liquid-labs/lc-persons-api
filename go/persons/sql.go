@@ -44,7 +44,7 @@ func ScanPersonDetail(row *sql.Rows) (*Person, *locations.Address, error) {
   var p Person
   var a locations.Address
 
-	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone, &p.Email, &p.PhoneBackup, &p.Id,
+	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone, &p.Email, &p.PhoneBackup, &p.Active, &p.Id,
       &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City, &a.State, &a.Zip, &a.Lat, &a.Lng); err != nil {
 		return nil, nil, err
 	}
@@ -87,8 +87,8 @@ func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []
   return whereBit, params, nil
 }
 
-const CommonPersonFields = `e.pub_id, e.last_updated, p.name, p.phone, p.email, p.phone_backup `
-const CommonPersonsFrom = `FROM persons p JOIN entities e ON p.id=e.id `
+const CommonPersonFields = `e.pub_id, e.last_updated, p.name, p.phone, p.email, p.phone_backup, u.active `
+const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
 const createPersonStatement = `INSERT INTO persons (id, name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
 func CreatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {

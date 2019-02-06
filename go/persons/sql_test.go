@@ -21,6 +21,7 @@ func testPersonCreate(t *testing.T) {
   assert.Equal(t, johnDoePerson.DisplayName, person.DisplayName, "Unexpected display name.")
   assert.Equal(t, johnDoePerson.Email, person.Email, "Unexpected email.")
   assert.Equal(t, johnDoePerson.Phone, person.Phone, "Unexpected phone.")
+  assert.Equal(t, johnDoePerson.Active, person.Active, "Unexpected active value.")
   assert.NotEmpty(t, person.Id, "Unexpected empty ID.")
   assert.NotEmpty(t, person.PubId, "Unexpected empty public id.")
 }
