@@ -24,7 +24,6 @@ type PersonSummary struct {
 type Person struct {
   PersonSummary
   Addresses     locations.Addresses  `json:"addresses"`
-  Active        nulls.Bool           `json:"active"`
   ChangeDesc    []string             `json:"changeDesc,omitempty"`
 }
 
