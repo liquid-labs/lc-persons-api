@@ -47,9 +47,31 @@ func (p *PersonSummary) SetPhotoURL(val string) {
   p.PhotoURL = nulls.NewString(val)
 }
 
+func (p *PersonSummary) Clone() *PersonSummary {
+  return &PersonSummary{
+    *p.User.Clone(),
+    p.DisplayName,
+    p.Email,
+    p.Phone,
+    p.PhoneBackup,
+    p.PhotoURL,
+  }
+}
+
 // We expect an empty address array if no addresses on detail
 type Person struct {
   PersonSummary
   Addresses     locations.Addresses  `json:"addresses"`
   ChangeDesc    []string             `json:"changeDesc,omitempty"`
+}
+
+func (p *Person) Clone() *Person {
+  newChangeDesc := make([]string, len(p.ChangeDesc))
+  copy(newChangeDesc, p.ChangeDesc)
+
+  return &Person{
+    *p.PersonSummary.Clone(),
+    *p.Addresses.Clone(),
+    newChangeDesc,
+  }
 }
