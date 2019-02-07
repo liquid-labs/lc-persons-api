@@ -8,6 +8,8 @@ import (
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
 )
 
+var phoneOutFormatter *regexp.Regexp = regexp.MustCompile(`^(\d{3})(\d{3})(\d{4})$`)
+
 // On summary, we don't include address. Note leaving it empty and using
 // 'omitempty' on the Person struct won't work because then Persons without
 // an address will appear 'incomplete' in the front-end model and never resolve.
@@ -20,20 +22,34 @@ type PersonSummary struct {
   PhotoURL      nulls.String `json:"photoUrl"`
 }
 
-// We expect an empty address array if no addresses on detail
-type Person struct {
-  PersonSummary
-  Addresses     locations.Addresses  `json:"addresses"`
-  ChangeDesc    []string             `json:"changeDesc,omitempty"`
-}
-
-var phoneOutFormatter *regexp.Regexp = regexp.MustCompile(`^(\d{3})(\d{3})(\d{4})$`)
-
 func (p *PersonSummary) FormatOut() {
   p.Phone.String = phoneOutFormatter.ReplaceAllString(p.Phone.String, `$1-$2-$3`)
   p.PhoneBackup.String = phoneOutFormatter.ReplaceAllString(p.PhoneBackup.String, `$1-$2-$3`)
 }
 
-func (p *Person) FormatOut() {
-  p.PersonSummary.FormatOut()
+func (p *PersonSummary) SetDisplayName(val string) {
+  p.DisplayName = nulls.NewString(val)
+}
+
+func (p *PersonSummary) SetEmail(val string) {
+  p.Email = nulls.NewString(val)
+}
+
+func (p *PersonSummary) SetPhone(val string) {
+  p.Phone = nulls.NewString(val)
+}
+
+func (p *PersonSummary) SetPhoneBackup(val string) {
+  p.PhoneBackup = nulls.NewString(val)
+}
+
+func (p *PersonSummary) SetPhotoURL(val string) {
+  p.PhotoURL = nulls.NewString(val)
+}
+
+// We expect an empty address array if no addresses on detail
+type Person struct {
+  PersonSummary
+  Addresses     locations.Addresses  `json:"addresses"`
+  ChangeDesc    []string             `json:"changeDesc,omitempty"`
 }
