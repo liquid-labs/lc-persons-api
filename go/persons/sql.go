@@ -129,9 +129,8 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     defer txn.Rollback()
     return nil, restErr
   }
-  txn.Commit()
 
-  newPerson, err := GetPersonById(p.Id.Int64)
+  newPerson, err := GetPersonByIdInTxn(p.Id.Int64, ctx, txn)
   if err != nil {
     return nil, rest.ServerError("Problem retrieving newly updated person.", err)
   }
@@ -144,17 +143,28 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 
 const CommonPersonGet string = `SELECT ` + CommonPersonFields + `, p.id, loc.id, ea.idx, ea.label, loc.address1, loc.address2, loc.city, loc.state, loc.zip, loc.lat, loc.lng ` + CommonPersonsFrom + ` LEFT JOIN entity_addresses ea ON p.id=ea.entity_id AND ea.idx >= 0 LEFT JOIN locations loc ON ea.location_id=loc.id `
 const getPersonStatement string = CommonPersonGet + `WHERE e.pub_id=? `
-func GetPerson(pubId string) (*Person, rest.RestError) {
-  return GetPersonHelper(getPersonQuery, pubId)
+func GetPerson(pubId string, ctx context.Context) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonQuery, pubId, ctx, nil)
+}
+
+func GetPersonInTxn(pubId string, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonQuery, pubId, ctx, txn)
 }
 
 const getPersonByIdStatement string = CommonPersonGet + ` WHERE p.id=? `
-func GetPersonById(id int64) (*Person, rest.RestError) {
-  return GetPersonHelper(getPersonByIdQuery, id)
+func GetPersonById(id int64, ctx context.Context) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonByIdQuery, id, ctx, nil)
 }
 
-func GetPersonHelper(stmt *sql.Stmt, id interface{}) (*Person, rest.RestError) {
-	rows, err := stmt.Query(id)
+func GetPersonByIdInTxn(id int64, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonByIdQuery, id, ctx, txn)
+}
+
+func getPersonHelper(stmt *sql.Stmt, id interface{}, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
+  if txn != nil {
+    stmt = txn.Stmt(stmt)
+  }
+	rows, err := stmt.QueryContext(ctx, id)
 	if err != nil {
 		return nil, rest.ServerError("Error retrieving person.", err)
 	}
@@ -191,7 +201,7 @@ func UpdatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
 
   newP, restErr := UpdatePersonInTxn(p, ctx, txn)
   // txn already rolled back if in error, so we only need to commit if no error
-  if err == nil {
+  if restErr == nil {
     defer txn.Commit()
   }
 
@@ -204,7 +214,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
   }
   var err error
   var updateStmt *sql.Stmt = updatePersonQuery
-  if (p.Addresses != nil) {
+  if p.Addresses != nil {
     if restErr := p.Addresses.Update(p.PubId.String, ctx, txn); restErr != nil {
       defer txn.Rollback()
       // TODO: this message could be misleading; like the person was updated, and just the addresses not
@@ -213,7 +223,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     updateStmt = txn.Stmt(updatePersonQuery)
   }
 
-  _, err = updateStmt.Exec(p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
+  _, err = updateStmt.Exec(p.Active, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
   if err != nil {
     if txn != nil {
       defer txn.Rollback()
@@ -221,7 +231,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     return nil, rest.ServerError("Could not update person record.", err)
   }
 
-  newPerson, err := GetPerson(p.PubId.String)
+  newPerson, err := GetPersonInTxn(p.PubId.String, ctx, txn)
   if err != nil {
     return nil, rest.ServerError("Problem retrieving newly updated person.", err)
   }
@@ -232,7 +242,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
   return newPerson, nil
 }
 
-const updatePersonStatement = `UPDATE persons p JOIN entities e ON p.id=e.id SET p.name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
+const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, p.name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
 var createPersonQuery, updatePersonQuery, getPersonQuery, getPersonByIdQuery *sql.Stmt
 func SetupDB(db *sql.DB) {
   var err error

@@ -14,7 +14,7 @@ import (
 const jdDisplayName = "John Doe"
 const jdEmail = "johndoe@test.com"
 const jdPhone = "555-555-0000"
-const jdActive = true
+const jdActive = false
 
 var johnDoeJson string = `
   {
