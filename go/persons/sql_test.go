@@ -30,7 +30,7 @@ func TestPersonsDBIntegration(t *testing.T) {
       t.Run(`PersonGet`, testPersonGet)
       t.Run(`PersonCreate`, testPersonCreate)
       t.Run(`PersonUpdate`, testPersonUpdate)
-      // t.Run(`PersonGetInTxn`, testPersonGetInTxn)
+      t.Run(`PersonGetInTxn`, testPersonGetInTxn)
       t.Run(`PersonCreateInTxn`, testPersonCreateInTxn)
       t.Run(`PersonUpdateInTxn`, testPersonUpdateInTxn)
     }
@@ -90,26 +90,41 @@ func testPersonUpdate(t *testing.T) {
   assert.NotEmpty(t, person.Id, `Unexpected empty ID.`)
   assert.NotEmpty(t, person.PubId, `Unexpected empty public id.`)
 }
-/*
+
 func testPersonGetInTxn(t *testing.T) {
-  janeDoePerson, err := GetPerson(janeDoeId, context.Background)
-  assert.NoError(t, err, `Unexpected error getting person.`)
-  txn, err := sqldb.DB.Begin()
+  janeDoePerson, restErr := GetPerson(janeDoeId, context.Background())
+  assert.NoError(t, restErr, `Unexpected error getting person.`)
+  txn, _ := sqldb.DB.Begin()
+  orig := janeDoePerson.Clone()
   // if we get in a txn, we should see the changes
   janeDoePerson.SetPhone(`555-555-0003`)
-  person, err := UpdatePersonInTxn(janeDoePerson, context.Background(), txn)
-
-  assert.NoError(t, err, `Unexpected error opening transaction.`)
-  janeDoePerson, err := GetPersonInTxn(janeDoeId, context.Background, txn)
-  assert.NoError(t, err, `Unexpected error getting person.`)
-
-  assert.NotEqual(t, janeDoePerson.Phone, person.Phone, `Phone number unexpectedly the same.`)
-  assert.NoError(t, txn.Rollback())
+  person, restErr := UpdatePersonInTxn(janeDoePerson, context.Background(), txn)
+  janeDoeTxn, restErr := GetPersonInTxn(janeDoeId, context.Background(), txn)
+  assert.Equal(t, *person, *janeDoeTxn, `Update-Person and Get-Person do not match.`)
+  assert.Equal(t, janeDoePerson.Phone, janeDoeTxn.Phone, `Did not see change while getting in txn.`)
+  assert.NotEqual(t, janeDoePerson.Phone, orig.Phone, `Phone number not changed.`)
+  janeDoeNoTxn, restErr := GetPerson(janeDoeId, context.Background())
+  assert.Equal(t, orig.Phone, janeDoeNoTxn.Phone, `Non-txn person reflects changes.`)
+  assert.NoError(t, txn.Commit(), `Error attempting commit.`)
+  janeDoeFinish, _ := GetPerson(janeDoeId, context.Background())
+  assert.Equal(t, *janeDoeTxn, *janeDoeFinish, `Post-commit Persons didn't match.`)
 }
-*/
+
 func testPersonCreateInTxn(t *testing.T) {
-  /*txn, err := sqldb.DB.Begin()
-  assert.NoError(t, err, `Unexpected error opening transaction.`)*/
+  jimDoePerson := johnDoePerson.Clone()
+  jimDoePerson.SetDisplayName(`Jim Doe`)
+  txn, _ := sqldb.DB.Begin()
+  txnPerson, restErr := CreatePersonInTxn(jimDoePerson, context.Background(), txn)
+  assert.NoError(t, restErr, `Unexpected error creating person in txn.`)
+  noPerson, restErr := GetPerson(txnPerson.PubId.String, context.Background())
+  assert.Nil(t, noPerson, `Unexpected retrieval of person outside of txn.`)
+  assert.Error(t, restErr, `Unexpected non-error while retrieving person outside of txn.`)
+  assert.NoError(t, txn.Commit(), `Error attempting commit.`)
+  jimDoeFinish, _ := GetPerson(txnPerson.PubId.String, context.Background())
+  // We expect the created person to have a empty ('[]') ChangeDesc, but the
+  // get-ed person's to be nil. So let's fix that before comparing.
+  txnPerson.ChangeDesc = nil
+  assert.Equal(t, *txnPerson, *jimDoeFinish, `Post-commit Persons didn't match.`)
 }
 
 func testPersonUpdateInTxn(t *testing.T) {

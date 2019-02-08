@@ -186,8 +186,12 @@ func getPersonHelper(stmt *sql.Stmt, id interface{}, ctx context.Context, txn *s
 	    addresses = append(addresses, address)
     }
 	}
-  person.Addresses = addresses
-  person.FormatOut()
+  if person != nil {
+    person.Addresses = addresses
+    person.FormatOut()
+  } else {
+    return nil, rest.NotFoundError(fmt.Sprintf(`Person '%s' not found.`, id), nil)
+  }
 
 	return person, nil
 }
