@@ -72,7 +72,7 @@ func BuildPersonResults(rows *sql.Rows) (interface{}, error) {
   return results, nil
 }
 
-// implement rest.GeneralSearchWhereBit
+// Implements rest.GeneralSearchWhereBit
 func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []interface{}, error) {
   likeTerm := `%`+term+`%`
   var whereBit string
@@ -130,7 +130,7 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     return nil, restErr
   }
 
-  newPerson, err := GetPersonByIdInTxn(p.Id.Int64, ctx, txn)
+  newPerson, err := GetPersonByIDInTxn(p.Id.Int64, ctx, txn)
   if err != nil {
     return nil, rest.ServerError("Problem retrieving newly updated person.", err)
   }
@@ -143,20 +143,39 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 
 const CommonPersonGet string = `SELECT ` + CommonPersonFields + `, p.id, loc.id, ea.idx, ea.label, loc.address1, loc.address2, loc.city, loc.state, loc.zip, loc.lat, loc.lng ` + CommonPersonsFrom + ` LEFT JOIN entity_addresses ea ON p.id=ea.entity_id AND ea.idx >= 0 LEFT JOIN locations loc ON ea.location_id=loc.id `
 const getPersonStatement string = CommonPersonGet + `WHERE e.pub_id=? `
+
+// GetPerson retrieves a Person from a public ID string (UUID). Attempting to
+// retrieve a non-existent Person results in a rest.NotFoundError. This is used
+// primarily to retrieve a Person in response to an API request.
+//
+// Consider using GetPersonByID to retrieve a Person from another backend/DB
+// function. TODO: reference discussion of internal vs public IDs.
 func GetPerson(pubId string, ctx context.Context) (*Person, rest.RestError) {
   return getPersonHelper(getPersonQuery, pubId, ctx, nil)
 }
 
+// GetPersonInTxn retrieves a Person by public ID string (UUID) in the context
+// of an existing transaction. See GetPerson.
 func GetPersonInTxn(pubId string, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
   return getPersonHelper(getPersonQuery, pubId, ctx, txn)
 }
 
 const getPersonByIdStatement string = CommonPersonGet + ` WHERE p.id=? `
-func GetPersonById(id int64, ctx context.Context) (*Person, rest.RestError) {
+// GetPersonByID retrieves a Person by internal ID. As the internal ID must
+// never be exposed to users, this method is exclusively for internal/backend
+// use. Specifically, since Persons are associated with other Entities through
+// the internal ID (i.e., foreign keys use the internal ID), this function is
+// most often used to retrieve a Person which is to be bundled in a response.
+//
+// Use GetPerson to retrieve a Person in response to an API request. TODO:
+// reference discussion of internal vs public IDs.
+func GetPersonByID(id int64, ctx context.Context) (*Person, rest.RestError) {
   return getPersonHelper(getPersonByIdQuery, id, ctx, nil)
 }
 
-func GetPersonByIdInTxn(id int64, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
+// GetPersonByIDInTxn retrieves a Person by internal ID in the context of an
+// existing transaction. See GetPersonByID.
+func GetPersonByIDInTxn(id int64, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
   return getPersonHelper(getPersonByIdQuery, id, ctx, txn)
 }
 
@@ -196,6 +215,12 @@ func getPersonHelper(stmt *sql.Stmt, id interface{}, ctx context.Context, txn *s
 	return person, nil
 }
 
+// BUG(zane@liquid-labs.com): UpdatePerson should use internal IDs if available
+// on the Person struct. (I'm assuming this is slightly more efficient, though
+// we should test.)
+
+// UpdatesPerson updates the canonical Person record. Attempting to update a
+// non-existent Person results in a rest.NotFoundError.
 func UpdatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
   txn, err := sqldb.DB.Begin()
   if err != nil {
@@ -212,6 +237,8 @@ func UpdatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
   return newP, restErr
 }
 
+// UpdatesPersonInTxn updates the canonical Person record within an existing
+// transaction. See UpdatePerson.
 func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
   if p.Addresses != nil {
     p.Addresses.CompleteAddresses(ctx)
