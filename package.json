@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/catalyst-persons-api",
-  "version": "0.1.0-0",
+  "version": "1.0.0-prototype1",
   "description": "API for typical user, person, and account profile management.",
   "bin": {
     "users-api-service.sh": "./bin/users-api-service.sh"
@@ -35,7 +35,7 @@
       "config-const": []
     },
     {
-      "iface": "http-rest",
+      "iface": "rest",
       "params-req": [
         "CLOUDSQL_INSTANCE_NAME",
         "CLOUDSQL_CONNECTION_PROT",
