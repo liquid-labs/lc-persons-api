@@ -1,18 +1,57 @@
 {
-  "name": "@liquid-labs/catalyst-users-api",
-  "version": "0.0.1",
-  "description": "API for typical user and account management.",
+  "name": "@liquid-labs/catalyst-persons-api",
+  "version": "1.0.0-prototype.0",
+  "description": "API for typical user, person, and account profile management.",
+  "bin": {
+    "users-api-service.sh": "./bin/users-api-service.sh"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd go && go build ./...",
+    "pretest": "catalyst-scripts pretest",
+    "test": "catalyst-scripts test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Liquid-Labs/catalyst-users-api.git"
+    "url": "git+https://github.com/Liquid-Labs/catalyst-persons-api.git"
   },
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Liquid-Labs/catalyst-users-api/issues"
+    "url": "https://github.com/Liquid-Labs/catalyst-persons-api/issues"
   },
-  "homepage": "https://github.com/Liquid-Labs/catalyst-users-api#readme"
+  "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
+  "devDependencies": {
+    "@liquid-labs/catalyst-core-api": "latest",
+    "@liquid-labs/catalyst-scripts": "latest"
+  },
+  "catalyst": {
+    "version": "0.1"
+  },
+  "_catalystRequiresService": [
+    {
+      "iface": "sql-mysql",
+      "params-req": [],
+      "params-opt": [],
+      "config-const": []
+    },
+    {
+      "iface": "rest",
+      "params-req": [
+        "CLOUDSQL_INSTANCE_NAME",
+        "CLOUDSQL_CONNECTION_PROT",
+        "CLOUDSQL_CONNECTION_NAME",
+        "CLOUDSQL_CREDS",
+        "CLOUDSQL_DB",
+        "CLOUDSQL_USER",
+        "CLOUDSQL_PASSWORD",
+        "GCP_PROJECT_ID",
+        "FIREBASE_DB_URL",
+        "FIREBASE_CREDS_FILE"
+      ],
+      "params-opt": [],
+      "config-const": {
+        "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml"
+      }
+    }
+  ]
 }
