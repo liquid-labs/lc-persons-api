@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/catalyst-persons-api",
-  "version": "1.0.0-prototype1",
+  "version": "0.0.0",
   "description": "API for typical user, person, and account profile management.",
   "bin": {
     "users-api-service.sh": "./bin/users-api-service.sh"
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "file:liquid-labs-catalyst-core-api-0.0.4.tgz",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.6"
+    "@liquid-labs/catalyst-core-api": "latest",
+    "@liquid-labs/catalyst-scripts": "latest"
   },
   "catalyst": {
     "version": "0.1"
