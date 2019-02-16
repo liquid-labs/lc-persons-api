@@ -1,6 +1,6 @@
 import { Model, Address, arrayType, entityPropModel } from '@liquid-labs/catalyst-core-api'
 
-export const personPropsModel = [
+const personPropsModel = [
     'name',
     'phone',
     'email',
@@ -31,4 +31,17 @@ const Person = class extends Model {
 }
 Model.finalizeConstructor(Person, personPropsModel)
 
-export default Person
+const personResourceConf = new CommonResourceConf('person', {
+  model: model.Person,
+  sortOptions: [
+    { label: 'Dispaly name (asc)',
+      value: 'name-asc',
+      func: (a, b) => a.displayName.localeCompare(b.displayName) },
+    { label: 'Display name (desc)',
+      value: 'name-desc',
+      func: (a, b) => -a.displayName.localeCompare(b.displayName) }
+  ],
+  sortDefault: 'name-asc'
+})
+
+export { Person, personPropsModel, personResourceConf }
