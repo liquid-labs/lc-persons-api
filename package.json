@@ -5,10 +5,24 @@
   "bin": {
     "users-api-service.sh": "./bin/users-api-service.sh"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.es.js",
+  "files": [
+    "./dist",
+    "./bin",
+    "./go",
+    "./data",
+    "go.mod",
+    "go.sum",
+    ".catalyst"
+  ],
   "scripts": {
-    "build": "cd go && go build ./...",
+    "prebuild": "rm -rf ./dist/* && mkdir -p ./dist",
+    "build": "catalyst-scripts build",
     "pretest": "catalyst-scripts pretest",
-    "test": "catalyst-scripts test"
+    "test": "catalyst-scripts test",
+    "lint": "catalyst-scripts lint",
+    "lint-fix": "catalyst-scripts lint-fix"
   },
   "repository": {
     "type": "git",
@@ -21,8 +35,20 @@
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "latest",
-    "@liquid-labs/catalyst-scripts": "latest"
+    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.3",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.12",
+    "@liquid-labs/regex-repo": "^1.0.0-alpha.2",
+    "lodash.isequal": "^4.5.0",
+    "lodash.omit": "^4.5.0",
+    "lodash.reduce": "^4.6.0",
+    "moment-timezone": "^0.5.23",
+    "normalizr": "^3.3.0",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.1",
+    "redux": "^4.0.1"
   },
   "catalyst": {
     "version": "0.1"
