@@ -5,9 +5,9 @@
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
   "files": [
-    "./dist",
-    "./go",
-    "./data",
+    "dist/",
+    "go/",
+    "data/",
     "go.mod",
     "go.sum",
     ".catalyst"
