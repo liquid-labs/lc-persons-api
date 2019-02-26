@@ -2,14 +2,10 @@
   "name": "@liquid-labs/catalyst-persons-api",
   "version": "1.0.0-prototype.1",
   "description": "API for typical user, person, and account profile management.",
-  "bin": {
-    "users-api-service.sh": "./bin/users-api-service.sh"
-  },
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
   "files": [
     "./dist",
-    "./bin",
     "./go",
     "./data",
     "go.mod",
