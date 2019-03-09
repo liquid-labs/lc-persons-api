@@ -25,9 +25,9 @@ func (p *Person) PromoteChanges() {
 }
 
 var PersonsSorts = map[string]string{
-  "": `p.name ASC `,
-  `name-asc`: `p.name ASC `,
-  `name-desc`: `p.name DESC `,
+  "": `p.display_name ASC `,
+  `name-asc`: `p.display_name ASC `,
+  `name-desc`: `p.display_name DESC `,
 }
 
 func ScanPersonSummary(row *sql.Rows) (*PersonSummary, error) {
@@ -44,8 +44,10 @@ func ScanPersonDetail(row *sql.Rows) (*Person, *locations.Address, error) {
   var p Person
   var a locations.Address
 
-	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone, &p.Email, &p.PhoneBackup, &p.Active, &p.Id,
-      &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City, &a.State, &a.Zip, &a.Lat, &a.Lng); err != nil {
+	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone,
+      &p.Email, &p.PhoneBackup, &p.Active, &p.AuthId, &p.Id,
+      &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City,
+      &a.State, &a.Zip, &a.Lat, &a.Lng); err != nil {
 		return nil, nil, err
 	}
 
@@ -80,17 +82,17 @@ func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []
     whereBit += "AND (p.phone LIKE ? OR p.phone_backup LIKE ?) "
     params = append(params, likeTerm, likeTerm)
   } else {
-    whereBit += "AND (p.name LIKE ? OR p.email LIKE ?) "
+    whereBit += "AND (p.display_name LIKE ? OR p.email LIKE ?) "
     params = append(params, likeTerm, likeTerm)
   }
 
   return whereBit, params, nil
 }
 
-const CommonPersonFields = `e.pub_id, e.last_updated, p.name, p.phone, p.email, p.phone_backup, u.active `
+const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id `
 const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
-const createPersonStatement = `INSERT INTO persons (id, name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
+const createPersonStatement = `INSERT INTO persons (id, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
 func CreatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
   txn, err := sqldb.DB.Begin()
   if err != nil {
@@ -158,6 +160,22 @@ func GetPerson(pubId string, ctx context.Context) (*Person, rest.RestError) {
 // of an existing transaction. See GetPerson.
 func GetPersonInTxn(pubId string, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
   return getPersonHelper(getPersonQuery, pubId, ctx, txn)
+}
+
+const getPersonByAuthIdStatement string = CommonPersonGet + ` WHERE u.auth_id=? `
+// GetPersonByAuthId retrieves a Person from a public authentication ID string
+// provided by the authentication provider (firebase). Attempting to retrieve a
+// non-existent Person results in a rest.NotFoundError. This is used primarily
+// to retrieve a Person in response to an API request, especially
+// '/persons/self'.
+func GetPersonByAuthId(authId string, ctx context.Context) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonByAuthIdQuery, authId, ctx, nil)
+}
+
+// GetPersonByAuthIdInTxn retrieves a Person by public authentication ID string
+// in the context of an existing transaction. See GetPersonByAuthId.
+func GetPersonByAuthIdInTxn(authId string, ctx context.Context, txn *sql.Tx) (*Person, rest.RestError) {
+  return getPersonHelper(getPersonByAuthIdQuery, authId, ctx, txn)
 }
 
 const getPersonByIdStatement string = CommonPersonGet + ` WHERE p.id=? `
@@ -273,8 +291,9 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
   return newPerson, nil
 }
 
-const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, p.name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
-var createPersonQuery, updatePersonQuery, getPersonQuery, getPersonByIdQuery *sql.Stmt
+// TODO: enable update of AuthID
+const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, p.display_name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
+var createPersonQuery, updatePersonQuery, getPersonQuery, getPersonByAuthIdQuery, getPersonByIdQuery *sql.Stmt
 func SetupDB(db *sql.DB) {
   var err error
   if createPersonQuery, err = db.Prepare(createPersonStatement); err != nil {
@@ -282,6 +301,9 @@ func SetupDB(db *sql.DB) {
   }
   if getPersonQuery, err = db.Prepare(getPersonStatement); err != nil {
     log.Fatalf("mysql: prepare get person stmt: %v", err)
+  }
+  if getPersonByAuthIdQuery, err = db.Prepare(getPersonByAuthIdStatement); err != nil {
+    log.Fatalf("mysql: prepare get person by auth ID stmt: %v", err)
   }
   if getPersonByIdQuery, err = db.Prepare(getPersonByIdStatement); err != nil {
     log.Fatalf("mysql: prepare get person by ID stmt: %v", err)

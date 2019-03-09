@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.3",
+    "@liquid-labs/catalyst-core-api": "file:.yalc/@liquid-labs/catalyst-core-api",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.13",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.2",
     "lodash.isequal": "^4.5.0",
