@@ -97,13 +97,49 @@ func detailHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
+  authClient := r.Context().Value(restserv.FireauthKey).(*fireauth.ScopedClient)
+  authToken, restErr := authClient.GetToken() // effectively checks if user authorized
+  if restErr != nil {
+    rest.HandleError(w, restErr)
+    return
+  }
+
   vars := mux.Vars(r)
-  pubId := vars["pubId"]
-  fmt.Fprintf(w, "TODO: POST %s\n", pubId)
+  pubID := vars["pubId"]
+  var newData *Person = &Person{}
+  if err := rest.ExtractJson(w, r, newData, `person`); err != nil {
+    return
+  }
+  if pubID != newData.PubId.String {
+    rest.HandleError(w, rest.BadRequestError("The ID of the target resource and the data provided do not match.", nil))
+    return
+  }
+
+  // TODO: This is essentially to do the auth check. Once we have a proper
+  // authorization infrasatructure, this can go away.
+  var user *Person
+  var err rest.RestError
+  user, err = GetPersonByAuthId(authToken.UID, r.Context())
+  if err != nil {
+    rest.HandleError(w, err)
+    return
+  }
+
+  if newData.PubId.String != user.PubId.String {
+    rest.HandleError(w, rest.AuthorizationError("You can only update your own data.", nil))
+    return
+  }
+
+  if updatedPerson, err := UpdatePerson(newData, r.Context()); err != nil {
+    rest.HandleError(w, err)
+    return
+  } else {
+    rest.StandardResponse(w, updatedPerson, `Person updated.`, nil)
+  }
 }
 
-const uuidRe = `[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`
-const personIdRe = uuidRe + `|self`
+const uuidRe = `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}`
+const personIdRe = `(?:` + uuidRe + `|self)`
 
 func InitAPI(r *mux.Router) {
   r.HandleFunc("/persons/", pingHandler).Methods("PING")
