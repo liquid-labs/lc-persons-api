@@ -10,7 +10,8 @@ const personPropsModel = [
   'displayName',
   'phone',
   'email',
-  'phoneBackup']
+  'phoneBackup',
+  'photoUrl']
   .map((propName) => ({ propName : propName, writable : true }))
 personPropsModel.push(...userPropsModel)
 personPropsModel.push({
