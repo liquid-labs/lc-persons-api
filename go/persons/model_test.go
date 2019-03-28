@@ -22,6 +22,7 @@ var trivialPersonSummary = &PersonSummary{
       nulls.NewString(`a`),
       nulls.NewInt64(2),
     },
+    nulls.NewString(`xzc098`),
     nulls.NewBool(false),
   },
   nulls.NewString(`displayName`),
