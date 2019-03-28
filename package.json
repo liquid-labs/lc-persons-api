@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/catalyst-persons-api",
-  "version": "1.0.0-prototype.3",
+  "version": "1.0.0-prototype.4",
   "description": "API for typical user, person, and account profile management.",
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
