@@ -31,9 +31,15 @@
     "url": "https://github.com/Liquid-Labs/catalyst-persons-api/issues"
   },
   "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.5",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.16",
+    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.6",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.17",
     "@liquid-labs/react-waiter": "^1.0.0-prototype.11",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/restful-paths": "^1.0.0-prototype.2",
@@ -64,9 +70,6 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0"
   },
-  "catalyst": {
-    "version": "0.1"
-  },
   "_catalystRequiresService": [
     {
       "iface": "sql-mysql",
@@ -93,5 +96,6 @@
         "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml"
       }
     }
-  ]
+  ],
+  "dependencies": {}
 }
