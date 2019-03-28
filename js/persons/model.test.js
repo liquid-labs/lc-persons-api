@@ -1,5 +1,5 @@
 /* globals beforeAll describe expect test */
-import { CommonResourceConf, resourcesSettings, verifyCatalystSetup } from '@liquid-labs/catalyst-core-api'
+import { resourcesSettings, verifyCatalystSetup } from '@liquid-labs/catalyst-core-api'
 import { Person, personResourceConf } from './model'
 
 const personFooModel = {
