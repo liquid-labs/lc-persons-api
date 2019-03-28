@@ -2,17 +2,18 @@ import {
   Address,
   arrayType,
   CommonResourceConf,
-  entityPropModel,
-  Model
+  Model,
+  userPropsModel
 } from '@liquid-labs/catalyst-core-api'
 
 const personPropsModel = [
   'displayName',
   'phone',
   'email',
-  'phoneBackup']
+  'phoneBackup',
+  'photoUrl']
   .map((propName) => ({ propName : propName, writable : true }))
-personPropsModel.push(...entityPropModel)
+personPropsModel.push(...userPropsModel)
 personPropsModel.push({
   propName  : 'addresses',
   model     : Address,
