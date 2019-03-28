@@ -55,9 +55,9 @@
     "redux-thunk": "^2.3.0"
   },
   "peerDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.1",
+    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.6",
     "@liquid-labs/react-waiter": "^1.0.0-prototype.11",
-    "@liquid-labs/regex-repo": "^1.0.0-alpha.2",
+    "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/restful-paths": "^1.0.0-prototype.2",
     "lodash.isequal": "^4.5.0",
     "lodash.omit": "^4.5.0",
