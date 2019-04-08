@@ -1,3 +1,3 @@
-# catalyst-users-api
+# catalyst-persons-api
 
-API for typical user and account management.
+API for managing typical persons (and users).
