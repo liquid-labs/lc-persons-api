@@ -8,8 +8,8 @@ import (
   "testing"
 
   . "github.com/Liquid-Labs/catalyst-persons-api/go/persons"
-  "github.com/Liquid-Labs/catalyst-core-api/go/entities"
-  "github.com/Liquid-Labs/catalyst-core-api/go/locations"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/entities"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
   "github.com/Liquid-Labs/catalyst-core-api/go/users"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/stretchr/testify/assert"

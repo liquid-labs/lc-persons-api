@@ -4,7 +4,7 @@ import (
   "regexp"
 
   "github.com/Liquid-Labs/catalyst-core-api/go/users"
-  "github.com/Liquid-Labs/catalyst-core-api/go/locations"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
 )
 
