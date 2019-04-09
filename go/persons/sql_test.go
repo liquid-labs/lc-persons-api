@@ -9,7 +9,7 @@ import (
   . "github.com/Liquid-Labs/catalyst-persons-api/go/persons"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/entities"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
-  "github.com/Liquid-Labs/catalyst-core-api/go/users"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/stretchr/testify/assert"
   "github.com/stretchr/testify/require"

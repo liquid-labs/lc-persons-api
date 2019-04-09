@@ -4,6 +4,8 @@ import { Person, personResourceConf } from './model'
 
 const personFooModel = {
   pubId       : '630AC9ED-3531-41E3-BD87-E26ADA74ECBC',
+  legalID     : '555-55-5555',
+  legalIDType : 'SSN',
   active      : true,
   authId      : null,
   lastUpdated : null,
@@ -17,6 +19,8 @@ const personFooModel = {
 
 const personBarModel = {
   pubId       : '23DB5195-67FF-4709-9033-7F9F5C5A6C6F',
+  legalID     : null,
+  legalIDType : null,
   active      : true,
   authId      : null,
   lastUpdated : null,
