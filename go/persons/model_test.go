@@ -22,7 +22,9 @@ var trivialPersonSummary = &PersonSummary{
       nulls.NewString(`a`),
       nulls.NewInt64(2),
     },
-    nulls.NewString(`xzc098`),
+    nulls.NewString(`xzc098`), // AuthID
+    nulls.NewString(`555-55-5555`), // LegalID
+    nulls.NewString(`SSN`), // LegalIDType
     nulls.NewBool(false),
   },
   nulls.NewString(`displayName`),
