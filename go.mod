@@ -10,11 +10,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 )
 
-replace github.com/Liquid-Labs/catalyst-core-api/go/restserv => /Users/zane/playground/catalyst-core-api/go/restserv
-
 replace github.com/Liquid-Labs/catalyst-core-api => /Users/zane/playground/catalyst-core-api
-
-replace github.com/Liquid-Labs/catalyst-firewrap/go/firewrap => /Users/zane/playground/catalyst-firewrap/go/firewrap
 
 replace github.com/Liquid-Labs/catalyst-firewrap => /Users/zane/playground/catalyst-firewrap
 

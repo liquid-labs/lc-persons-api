@@ -6,40 +6,26 @@ import (
 
   "github.com/gorilla/mux"
 
-  "github.com/Liquid-Labs/catalyst-core-api/go/restserv"
-  "github.com/Liquid-Labs/catalyst-firewrap/go/fireauth"
+  "github.com/Liquid-Labs/catalyst-core-api/go/handlers"
   "github.com/Liquid-Labs/go-rest/rest"
 )
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprint(w, "/persons alive\n")
+  fmt.Fprint(w, "/persons is alive\n")
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
-  authClient := r.Context().Value(restserv.FireauthKey).(*fireauth.ScopedClient)
-  authToken, restErr := authClient.GetToken() // effectively checks if user authorized
-  if restErr != nil {
-    rest.HandleError(w, restErr)
-    return
-  }
+  var person *Person = &Person{}
+  if authToken, restErr := handlers.CheckAndExtract(w, r, person, `Person`); restErr != nil {
+    return // response handled by CheckAndExtract
+  } else {
+    if authToken.UID != person.AuthId.String {
+      rest.HandleError(w, rest.AuthorizationError("You can create a record only for yourself.", nil))
+      return
+    }
 
-  var person Person
-  if err := rest.ExtractJson(w, r, &person, `Person`); err != nil {
-    // HTTP response is already set by 'ExtractJson'
-    return
+    handlers.DoCreate(w, r, CreatePerson, person, `Person`)
   }
-  if authToken.UID != person.AuthId.String {
-    rest.HandleError(w, rest.AuthorizationError("Create record for yourself.", nil))
-    return
-  }
-
-  newPerson, err := CreatePerson(&person, r.Context())
-  if err != nil {
-    rest.HandleError(w, err)
-    return
-  }
-
-  rest.StandardResponse(w, newPerson, `Person created.`, nil)
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,82 +45,56 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func detailHandler(w http.ResponseWriter, r *http.Request) {
-  authClient := r.Context().Value(restserv.FireauthKey).(*fireauth.ScopedClient)
-  authToken, restErr := authClient.GetToken() // effectively checks if user authorized
-  if restErr != nil {
-    rest.HandleError(w, restErr)
-    return
-  }
-
-  vars := mux.Vars(r)
-  authId := vars["authId"]
-  pubId := vars["pubId"]
-  if authId == `` {
-    if pubId != `self` {
-      rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (1)", nil))
+  if authToken, restErr := handlers.BasicAuthCheck(w, r); restErr != nil {
+    return // response handled by BasicAuthCheck
+  } else {
+    vars := mux.Vars(r)
+    authId := vars["authId"]
+    pubId := vars["pubId"]
+    if authId == `` {
+      if pubId != `self` {
+        rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (1)", nil))
+        return
+      }
+      authId = authToken.UID
+    } else if authId != authToken.UID {
+      rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (2)", nil))
       return
     }
-    authId = authToken.UID
-  } else if authId != authToken.UID {
-    rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (2)", nil))
-    return
-  }
 
-  var person *Person
-  var err rest.RestError
-  if authId != `` {
-    person, err = GetPersonByAuthId(authToken.UID, r.Context())
-  } else {
-    // not currently used, but will do once general authorization system in place
-    person, err = GetPerson(pubId, r.Context())
-  }
-  if err != nil {
-    rest.HandleError(w, err)
-    return
-  } else {
-    rest.StandardResponse(w, person, `Person retrieved.`, nil)
+    if authId != `` {
+      handlers.DoGetDetail(w, r, GetPersonByAuthId, authToken.UID, `Person`)
+    } else {
+      // not currently used, but will do once general authorization system in place
+      handlers.DoGetDetail(w, r, GetPerson, pubId, `Person`)
+    }
   }
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-  authClient := r.Context().Value(restserv.FireauthKey).(*fireauth.ScopedClient)
-  authToken, restErr := authClient.GetToken() // effectively checks if user authorized
-  if restErr != nil {
-    rest.HandleError(w, restErr)
-    return
-  }
-
-  vars := mux.Vars(r)
-  pubID := vars["pubId"]
   var newData *Person = &Person{}
-  if err := rest.ExtractJson(w, r, newData, `person`); err != nil {
-    return
-  }
-  if pubID != newData.PubId.String {
-    rest.HandleError(w, rest.BadRequestError("The ID of the target resource and the data provided do not match.", nil))
-    return
-  }
-
-  // TODO: This is essentially to do the auth check. Once we have a proper
-  // authorization infrasatructure, this can go away.
-  var user *Person
-  var err rest.RestError
-  user, err = GetPersonByAuthId(authToken.UID, r.Context())
-  if err != nil {
-    rest.HandleError(w, err)
-    return
-  }
-
-  if newData.PubId.String != user.PubId.String {
-    rest.HandleError(w, rest.AuthorizationError("You can only update your own data.", nil))
-    return
-  }
-
-  if updatedPerson, err := UpdatePerson(newData, r.Context()); err != nil {
-    rest.HandleError(w, err)
-    return
+  if authToken, restErr := handlers.CheckAndExtract(w, r, newData, `Person`); restErr != nil {
+    return // response handled by CheckAndExtract
   } else {
-    rest.StandardResponse(w, updatedPerson, `Person updated.`, nil)
+    vars := mux.Vars(r)
+    pubID := vars["pubId"]
+
+    // TODO: This is essentially to do the auth check. Once we have a proper
+    // authorization infrasatructure, this can go away.
+    var user *Person
+    var err rest.RestError
+    user, err = GetPersonByAuthId(authToken.UID, r.Context())
+    if err != nil {
+      rest.HandleError(w, err)
+      return
+    }
+
+    if newData.PubId.String != user.PubId.String {
+      rest.HandleError(w, rest.AuthorizationError("You can only update your own data.", nil))
+      return
+    }
+
+    handlers.DoUpdate(w, r, UpdatePerson, newData, pubID, `Person`)
   }
 }
 

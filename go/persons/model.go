@@ -3,7 +3,7 @@ package persons
 import (
   "regexp"
 
-  "github.com/Liquid-Labs/catalyst-core-api/go/users"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
 )
