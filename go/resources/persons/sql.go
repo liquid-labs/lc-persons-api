@@ -6,7 +6,6 @@ import (
   "fmt"
   "log"
   "strconv"
-  "strings"
 
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
@@ -14,15 +13,6 @@ import (
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
 )
-
-func (p *Person) PromoteChanges() {
-  for i, address := range p.Addresses {
-    for _, changeDesc := range address.ChangeDesc {
-      changeDesc = strings.TrimSuffix(changeDesc, `.`) + ` on address ` + strconv.Itoa(i + 1) + `.`
-      p.ChangeDesc = append(p.ChangeDesc, changeDesc)
-    }
-  }
-}
 
 var PersonsSorts = map[string]string{
   "": `p.display_name ASC `,
