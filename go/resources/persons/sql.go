@@ -82,7 +82,7 @@ func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []
 const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id, u.legal_id, u.legal_id_type `
 const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
-const createPersonStatement = `INSERT INTO persons (id, legal_id, legal_id_type, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?,?,?)`
+const createPersonStatement = `INSERT INTO persons (id, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
 func CreatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
   txn, err := sqldb.DB.Begin()
   if err != nil {
@@ -109,7 +109,7 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 
   p.Id = nulls.NewInt64(newId)
 
-	_, err = txn.Stmt(createPersonQuery).Exec(newId, p.LegalID, p.LegalIDType, p.DisplayName, p.Phone, p.Email, p.PhoneBackup)
+	_, err = txn.Stmt(createPersonQuery).Exec(newId, p.DisplayName, p.Phone, p.Email, p.PhoneBackup)
 	if err != nil {
     // TODO: can we do more to tell the cause of the failure? We assume it's due to malformed data with the HTTP code
     defer txn.Rollback()
@@ -262,7 +262,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     updateStmt = txn.Stmt(updatePersonQuery)
   }
 
-  _, err = updateStmt.Exec(p.Active, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
+  _, err = updateStmt.Exec(p.Active, p.LegalID, p.LegalIDType, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
   if err != nil {
     if txn != nil {
       defer txn.Rollback()
@@ -282,7 +282,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 }
 
 // TODO: enable update of AuthID
-const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, p.display_name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
+const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, u.legal_id=?, u.legal_id_type=?, p.display_name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
 var createPersonQuery, updatePersonQuery, getPersonQuery, getPersonByAuthIdQuery, getPersonByIdQuery *sql.Stmt
 func SetupDB(db *sql.DB) {
   var err error
