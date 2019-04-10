@@ -16,10 +16,4 @@ replace github.com/Liquid-Labs/catalyst-firewrap => /Users/zane/playground/catal
 
 replace github.com/Liquid-Labs/go-api => /Users/zane/playground/go-api
 
-replace github.com/Liquid-Labs/go-api/osext => /Users/zane/playground/go-api/osext
-
-replace github.com/Liquid-Labs/go-api/sqldb => /Users/zane/playground/go-api/sqldb
-
 replace github.com/Liquid-Labs/go-rest => /Users/zane/playground/go-rest
-
-replace github.com/Liquid-Labs/go-rest/rest => /Users/zane/playground/go-rest/rest
