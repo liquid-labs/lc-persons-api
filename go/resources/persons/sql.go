@@ -10,6 +10,7 @@ import (
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/Liquid-Labs/go-rest/rest"
+  "github.com/Liquid-Labs/catalyst-core-api/go/catdb"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
 )
@@ -35,8 +36,8 @@ func ScanPersonDetail(row *sql.Rows) (*Person, *locations.Address, error) {
   var a locations.Address
 
 	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone,
-      &p.Email, &p.PhoneBackup, &p.Active, &p.AuthId, &p.Id,
-      &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City,
+      &p.Email, &p.PhoneBackup, &p.Active, &p.AuthId, &p.LegalID, &p.LegalIDType,
+      &p.Id, &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City,
       &a.State, &a.Zip, &a.Lat, &a.Lng); err != nil {
 		return nil, nil, err
 	}
@@ -79,10 +80,10 @@ func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []
   return whereBit, params, nil
 }
 
-const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id `
+const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id, u.legal_id, u.legal_id_type `
 const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
-const createPersonStatement = `INSERT INTO persons (id, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
+const createPersonStatement = `INSERT INTO persons (id, legal_id, legal_id_type, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?,?,?)`
 func CreatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
   txn, err := sqldb.DB.Begin()
   if err != nil {
@@ -109,7 +110,7 @@ func CreatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 
   p.Id = nulls.NewInt64(newId)
 
-	_, err = txn.Stmt(createPersonQuery).Exec(newId, p.DisplayName, p.Phone, p.Email, p.PhoneBackup)
+	_, err = txn.Stmt(createPersonQuery).Exec(newId, p.LegalID, p.LegalIDType, p.DisplayName, p.Phone, p.Email, p.PhoneBackup)
 	if err != nil {
     // TODO: can we do more to tell the cause of the failure? We assume it's due to malformed data with the HTTP code
     defer txn.Rollback()
