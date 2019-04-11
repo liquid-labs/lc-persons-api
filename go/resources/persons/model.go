@@ -3,8 +3,9 @@ package persons
 import (
   "regexp"
 
-  "github.com/Liquid-Labs/catalyst-core-api/go/users"
-  "github.com/Liquid-Labs/catalyst-core-api/go/locations"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
 )
 
@@ -74,4 +75,8 @@ func (p *Person) Clone() *Person {
     *p.Addresses.Clone(),
     newChangeDesc,
   }
+}
+
+func (p *Person) PromoteChanges() {
+  p.ChangeDesc = resources.PromoteChanges(p.Addresses, p.ChangeDesc)
 }

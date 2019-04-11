@@ -6,23 +6,13 @@ import (
   "fmt"
   "log"
   "strconv"
-  "strings"
 
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/Liquid-Labs/go-rest/rest"
-  "github.com/Liquid-Labs/catalyst-core-api/go/users"
-  "github.com/Liquid-Labs/catalyst-core-api/go/locations"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
+  "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
 )
-
-func (p *Person) PromoteChanges() {
-  for i, address := range p.Addresses {
-    for _, changeDesc := range address.ChangeDesc {
-      changeDesc = strings.TrimSuffix(changeDesc, `.`) + ` on address ` + strconv.Itoa(i + 1) + `.`
-      p.ChangeDesc = append(p.ChangeDesc, changeDesc)
-    }
-  }
-}
 
 var PersonsSorts = map[string]string{
   "": `p.display_name ASC `,
@@ -45,8 +35,8 @@ func ScanPersonDetail(row *sql.Rows) (*Person, *locations.Address, error) {
   var a locations.Address
 
 	if err := row.Scan(&p.PubId, &p.LastUpdated, &p.DisplayName, &p.Phone,
-      &p.Email, &p.PhoneBackup, &p.Active, &p.AuthId, &p.Id,
-      &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City,
+      &p.Email, &p.PhoneBackup, &p.Active, &p.AuthId, &p.LegalID, &p.LegalIDType,
+      &p.Id, &a.LocationId, &a.Idx, &a.Label, &a.Address1, &a.Address2, &a.City,
       &a.State, &a.Zip, &a.Lat, &a.Lng); err != nil {
 		return nil, nil, err
 	}
@@ -89,7 +79,7 @@ func PersonsGeneralWhereGenerator(term string, params []interface{}) (string, []
   return whereBit, params, nil
 }
 
-const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id `
+const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p.email, p.phone_backup, u.active, u.auth_id, u.legal_id, u.legal_id_type `
 const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
 const createPersonStatement = `INSERT INTO persons (id, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
@@ -272,7 +262,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     updateStmt = txn.Stmt(updatePersonQuery)
   }
 
-  _, err = updateStmt.Exec(p.Active, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
+  _, err = updateStmt.Exec(p.Active, p.LegalID, p.LegalIDType, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
   if err != nil {
     if txn != nil {
       defer txn.Rollback()
@@ -292,7 +282,7 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
 }
 
 // TODO: enable update of AuthID
-const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, p.display_name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
+const updatePersonStatement = `UPDATE persons p JOIN users u ON u.id=p.id JOIN entities e ON p.id=e.id SET u.active=?, u.legal_id=?, u.legal_id_type=?, p.display_name=?, p.phone=?, p.email=?, p.phone_backup=?, e.last_updated=0 WHERE e.pub_id=?`
 var createPersonQuery, updatePersonQuery, getPersonQuery, getPersonByAuthIdQuery, getPersonByIdQuery *sql.Stmt
 func SetupDB(db *sql.DB) {
   var err error
