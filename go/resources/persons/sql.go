@@ -252,16 +252,15 @@ func UpdatePersonInTxn(p *Person, ctx context.Context, txn *sql.Tx) (*Person, re
     p.Addresses.CompleteAddresses(ctx)
   }
   var err error
-  var updateStmt *sql.Stmt = updatePersonQuery
   if p.Addresses != nil {
     if restErr := p.Addresses.Update(p.PubId.String, ctx, txn); restErr != nil {
       defer txn.Rollback()
       // TODO: this message could be misleading; like the person was updated, and just the addresses not
       return nil, restErr
     }
-    updateStmt = txn.Stmt(updatePersonQuery)
   }
 
+  var updateStmt *sql.Stmt = txn.Stmt(updatePersonQuery)
   _, err = updateStmt.Exec(p.Active, p.LegalID, p.LegalIDType, p.DisplayName, p.Phone, p.Email, p.PhoneBackup, p.PubId)
   if err != nil {
     if txn != nil {
