@@ -2,6 +2,7 @@ package persons
 
 import (
   "fmt"
+  "log"
   "net/http"
 
   "github.com/gorilla/mux"
@@ -15,6 +16,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
+  log.Print("Creating person.")
   var person *Person = &Person{}
   if authToken, restErr := handlers.CheckAndExtract(w, r, person, `Person`); restErr != nil {
     return // response handled by CheckAndExtract
@@ -102,7 +104,7 @@ const uuidRe = `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-
 const personIdRe = `(?:` + uuidRe + `|self)`
 
 func InitAPI(r *mux.Router) {
-  r.HandleFunc("/persons/", pingHandler).Methods("PING")
+  r.HandleFunc("/", pingHandler).Methods("PING")
   r.HandleFunc("/persons/", createHandler).Methods("POST")
   r.HandleFunc("/persons/", listHandler).Methods("GET")
   r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:" + uuidRe + "}/persons/", listHandler).Methods("GET")
