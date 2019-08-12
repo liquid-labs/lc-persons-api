@@ -1,5 +1,5 @@
 {
-  "name": "@liquid-labs/catalyst-persons-api",
+  "name": "@liquid-labs/lc-persons-api",
   "version": "1.0.0-prototype.8",
   "description": "API for typical user, person, and account profile management.",
   "main": "./dist/index.js",
@@ -23,20 +23,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Liquid-Labs/catalyst-persons-api.git"
+    "url": "git+https://github.com/Liquid-Labs/lc-persons-api.git"
   },
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Liquid-Labs/catalyst-persons-api/issues"
+    "url": "https://github.com/Liquid-Labs/lc-persons-api/issues"
   },
-  "homepage": "https://github.com/Liquid-Labs/catalyst-persons-api#readme",
+  "homepage": "https://github.com/Liquid-Labs/lc-persons-api#readme",
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
   ],
+  "dependencies": {
+    "@liquid-labs/lc-persons-model": "^1.0.0-alpha.1"
+  },
   "devDependencies": {
     "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.15",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.19",
@@ -60,32 +63,33 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0"
   },
-  "_catalystRequiresService": [
-    {
-      "iface": "sql-mysql",
-      "params-req": [],
-      "params-opt": [],
-      "config-const": []
-    },
-    {
-      "iface": "rest",
-      "params-req": [
-        "CLOUDSQL_INSTANCE_NAME",
-        "CLOUDSQL_CONNECTION_PROT",
-        "CLOUDSQL_CONNECTION_NAME",
-        "CLOUDSQL_CREDS",
-        "CLOUDSQL_DB",
-        "CLOUDSQL_USER",
-        "CLOUDSQL_PASSWORD",
-        "GCP_PROJECT_ID",
-        "FIREBASE_DB_URL",
-        "FIREBASE_CREDS_FILE"
-      ],
-      "params-opt": [],
-      "config-const": {
-        "ADD_GO_APP_PERSONS": "@liquid-labs/catalyst-persons-api:go/app.yaml"
+  "catalyst": {
+    "requires": [
+      {
+        "iface": "sql-mysql",
+        "params-req": [],
+        "params-opt": [],
+        "config-const": []
+      },
+      {
+        "iface": "rest",
+        "params-req": [
+          "CLOUDSQL_INSTANCE_NAME",
+          "CLOUDSQL_CONNECTION_PROT",
+          "CLOUDSQL_CONNECTION_NAME",
+          "CLOUDSQL_CREDS",
+          "CLOUDSQL_DB",
+          "CLOUDSQL_USER",
+          "CLOUDSQL_PASSWORD",
+          "GCP_PROJECT_ID",
+          "FIREBASE_DB_URL",
+          "FIREBASE_CREDS_FILE"
+        ],
+        "params-opt": [],
+        "config-const": {
+          "ADD_GO_APP_PERSONS": "@liquid-labs/lc-persons-api:go/app.yaml"
+        }
       }
-    }
-  ],
-  "dependencies": {}
+    ]
+  }
 }
