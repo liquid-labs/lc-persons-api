@@ -10,10 +10,11 @@ import (
   "github.com/Liquid-Labs/go-api/sqldb"
   "github.com/Liquid-Labs/go-nullable-mysql/nulls"
   "github.com/Liquid-Labs/go-rest/rest"
+  "github.com/Liquid-Labs/terror/go/terror"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/users"
   "github.com/Liquid-Labs/catalyst-core-api/go/resources/locations"
 )
-
+/*
 var PersonsSorts = map[string]string{
   "": `p.display_name ASC `,
   `name-asc`: `p.display_name ASC `,
@@ -83,7 +84,8 @@ const CommonPersonFields = `e.pub_id, e.last_updated, p.display_name, p.phone, p
 const CommonPersonsFrom = `FROM persons p JOIN users u ON p.id=u.id JOIN entities e ON p.id=e.id `
 
 const createPersonStatement = `INSERT INTO persons (id, display_name, phone, email, phone_backup) VALUES(?,?,?,?,?)`
-func CreatePerson(p *Person, ctx context.Context) (*Person, rest.RestError) {
+*/
+func CreatePerson(p *Person, ctx context.Context) (*Person, terror.Terror) {
   txn, err := sqldb.DB.Begin()
   if err != nil {
     defer txn.Rollback()
