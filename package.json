@@ -41,8 +41,9 @@
     "@liquid-labs/lc-persons-model": "^1.0.0-alpha.1"
   },
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.15",
+    "@liquid-labs/catalyst-core-api": "file:.yalc/@liquid-labs/catalyst-core-api",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.19",
+    "@liquid-labs/liquid-dev-cloudsql": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/restful-paths": "^1.0.0-prototype.2",
     "lodash.omit": "^4.5.0",
@@ -66,7 +67,7 @@
   "catalyst": {
     "requires": [
       {
-        "iface": "sql-mysql",
+        "iface": "sql",
         "params-req": [],
         "params-opt": [],
         "config-const": []
