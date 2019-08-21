@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@liquid-labs/catalyst-core-api": "file:.yalc/@liquid-labs/catalyst-core-api",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.19",
+    "@liquid-labs/catalyst-scripts": "file:.yalc/@liquid-labs/catalyst-scripts",
     "@liquid-labs/liquid-dev-cloudsql": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/restful-paths": "^1.0.0-prototype.2",

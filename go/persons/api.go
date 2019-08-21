@@ -7,7 +7,6 @@ import (
   "github.com/gorilla/mux"
 
   "github.com/Liquid-Labs/lc-authentication-api/go/auth"
-  . "github.com/Liquid-Labs/lc-entities-model/go/entities"
   "github.com/Liquid-Labs/lc-rdb-service/go/rdb"
   "github.com/Liquid-Labs/go-rest/rest"
   model "github.com/Liquid-Labs/lc-persons-model/go/persons"
@@ -18,29 +17,26 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
   fmt.Fprint(w, "/persons is alive\n")
 }
 
-func checkAuthentication(w http.ResponseWriter, r *http.Request) (bool, string) {
-  authenticator, authID, err := auth.CheckAuthentication(r.Context())
-  if err != nil {
-    rest.HandleError(w, err)
-    return false, ``
-  } else if !authenticator.IsRequestAuthenticated() {
+func requireAuthentication(w http.ResponseWriter, r *http.Request) (bool, string) {
+  authOracle := auth.GetAuthOracleFromContext(r.Context())
+  if authOracle == nil || !authOracle.IsRequestAuthenticated() {
     rest.HandleError(w, UnauthenticatedError("Request must be authenticated."))
     return false, ``
-  } else { return true, authID }
+  } else { return true, authOracle.GetAuthID() }
 }
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
   var person *model.Person = &model.Person{}
-  ok, authID := checkAuthentication(w, r)
+  ok, authID := requireAuthentication(w, r)
   if ok {
-    if authID != person.GetAuthID() {
-      rest.HandleError(w, ForbiddenError("You can create a record only for yourself."))
+    if err := rest.ExtractJson(w, r, &person, `Person`); err != nil {
+      rest.HandleError(w, err); return
+    } else if authID != person.GetAuthID() {
+      rest.HandleError(w, ForbiddenError("You can create a record only for yourself. (Auth IDs must match.)"))
       return
     }
 
-    im := ConnectItemManager()
-    cErr := im.CreateRaw(person)
-    if (cErr != nil) {
+    if cErr := person.CreatePersonSelf(r.Context()); cErr != nil {
       rest.HandleError(w, ServerError("Could not create person.", cErr))
     } else {
       rest.StandardResponse(w, person, `Person created.`, nil)
@@ -65,7 +61,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func detailHandler(w http.ResponseWriter, r *http.Request) {
-  ok, authID := checkAuthentication(w, r)
+  ok, authID := requireAuthentication(w, r)
   if ok {
     vars := mux.Vars(r)
     reqAuthID := vars["authId"]
@@ -96,7 +92,7 @@ func detailHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-  ok, _ := checkAuthentication(w, r)
+  ok, _ := requireAuthentication(w, r)
   if ok {
     newData := &model.Person{}
     if err := rest.ExtractJson(w, r, &newData, `Person`); err != nil {
