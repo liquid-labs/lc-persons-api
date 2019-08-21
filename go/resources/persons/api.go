@@ -2,31 +2,49 @@ package persons
 
 import (
   "fmt"
-  "log"
   "net/http"
 
   "github.com/gorilla/mux"
 
-  "github.com/Liquid-Labs/catalyst-core-api/go/handlers"
+  "github.com/Liquid-Labs/lc-authentication-api/go/auth"
+  . "github.com/Liquid-Labs/lc-entities-model/go/entities"
+  "github.com/Liquid-Labs/lc-rdb-service/go/rdb"
   "github.com/Liquid-Labs/go-rest/rest"
+  model "github.com/Liquid-Labs/lc-persons-model/go/persons"
+  . "github.com/Liquid-Labs/terror/go/terror"
 )
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
   fmt.Fprint(w, "/persons is alive\n")
 }
 
+func checkAuthentication(w http.ResponseWriter, r *http.Request) (bool, string) {
+  authenticator, authID, err := auth.CheckAuthentication(r.Context())
+  if err != nil {
+    rest.HandleError(w, ServerError("Error checking authentication.", err))
+    return false, ``
+  } else if !authenticator.IsRequestAuthenticated() {
+    rest.HandleError(w, UnauthenticatedError("Request must be authenticated."))
+    return false, ``
+  } else { return true, authID }
+}
+
 func createHandler(w http.ResponseWriter, r *http.Request) {
-  log.Print("Creating person.")
-  var person *Person = &Person{}
-  if authToken, restErr := handlers.CheckAndExtract(w, r, person, `Person`); restErr != nil {
-    return // response handled by CheckAndExtract
-  } else {
-    if authToken.UID != person.AuthId.String {
-      rest.HandleError(w, rest.AuthorizationError("You can create a record only for yourself.", nil))
+  var person *model.Person = &model.Person{}
+  ok, authID := checkAuthentication(w, r)
+  if ok {
+    if authID != person.GetAuthID() {
+      rest.HandleError(w, ForbiddenError("You can create a record only for yourself."))
       return
     }
 
-    handlers.DoCreate(w, r, CreatePerson, person, `Person`)
+    im := ConnectItemManager()
+    cErr := im.CreateRaw(person)
+    if (cErr != nil) {
+      rest.HandleError(w, ServerError("Could not create person.", cErr))
+    } else {
+      rest.StandardResponse(w, person, `Person created.`, nil)
+    }
   }
 }
 
@@ -47,56 +65,59 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func detailHandler(w http.ResponseWriter, r *http.Request) {
-  if authToken, restErr := handlers.BasicAuthCheck(w, r); restErr != nil {
-    return // response handled by BasicAuthCheck
-  } else {
+  ok, authID := checkAuthentication(w, r)
+  if ok {
     vars := mux.Vars(r)
-    authId := vars["authId"]
+    reqAuthID := vars["authId"]
     pubId := vars["pubId"]
-    if authId == `` {
+    if reqAuthID == `` {
       if pubId != `self` {
-        rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (1)", nil))
+        rest.HandleError(w, ForbiddenError("May only request your own data. Try '/persons/self'. (1)"))
         return
       }
-      authId = authToken.UID
-    } else if authId != authToken.UID {
-      rest.HandleError(w, rest.AuthorizationError("May only request your own data. Try '/persons/self'. (2)", nil))
+    } else if reqAuthID != authID {
+      rest.HandleError(w, ForbiddenError("May only request your own data. Try '/persons/self'. (2)"))
       return
     }
 
-    if authId != `` {
-      handlers.DoGetDetail(w, r, GetPersonByAuthId, authToken.UID, `Person`)
+    if authID != `` {
+      p, err := model.RetrievePersonSelf(rdb.ConnectWithContext(r.Context()))
+      if (err != nil) {
+        rest.HandleError(w, ServerError("Error retrieving person.", err))
+      } else {
+        rest.StandardResponse(w, p, `Person retrieved.`, nil)
+      }
     } else {
-      // not currently used, but will do once general authorization system in place
-      handlers.DoGetDetail(w, r, GetPerson, pubId, `Person`)
+      // not currently used, but will do once general authorization system in place; at the moment we exit after checkAuthenticaiton
+      // handlers.DoGetDetail(w, r, GetPerson, pubId, `Person`)
+      return
     }
   }
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-  var newData *Person = &Person{}
-  if authToken, restErr := handlers.CheckAndExtract(w, r, newData, `Person`); restErr != nil {
-    return // response handled by CheckAndExtract
-  } else {
+  ok, _ := checkAuthentication(w, r)
+  if ok {
+    newData := &model.Person{}
+    if err := rest.ExtractJson(w, r, &newData, `Person`); err != nil {
+      // HTTP response is already set by 'ExtractJson'
+      return
+    }
+
     vars := mux.Vars(r)
     pubID := vars["pubId"]
 
-    // TODO: This is essentially to do the auth check. Once we have a proper
-    // authorization infrasatructure, this can go away.
-    var user *Person
-    var err rest.RestError
-    user, err = GetPersonByAuthId(authToken.UID, r.Context())
+    if string(newData.ID) != pubID {
+      rest.HandleError(w, ForbiddenError("You can only update your own data."))
+      return
+    }
+
+    err := newData.UpdateSelf(rdb.Connect())
     if err != nil {
-      rest.HandleError(w, err)
-      return
+      rest.HandleError(w, ServerError("Error updating person.", err))
+    } else {
+      rest.StandardResponse(w, newData, `Person updated.`, nil)
     }
-
-    if newData.PubId.String != user.PubId.String {
-      rest.HandleError(w, rest.AuthorizationError("You can only update your own data.", nil))
-      return
-    }
-
-    handlers.DoUpdate(w, r, UpdatePerson, newData, pubID, `Person`)
   }
 }
 

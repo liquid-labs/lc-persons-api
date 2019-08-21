@@ -3,7 +3,7 @@ package main
 import (
   "github.com/Liquid-Labs/catalyst-core-api/go/restserv"
 
-  "github.com/Liquid-Labs/catalyst-persons-api/go/resources/persons"
+  "github.com/Liquid-Labs/lc-persons-api/go/resources/persons"
 )
 
 func main() {
