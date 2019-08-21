@@ -3,7 +3,6 @@ package persons_test
 import (
   "bytes"
   "context"
-  // "encoding/json"
   "net/http"
   "net/http/httptest"
   "testing"
@@ -11,17 +10,35 @@ import (
   . "github.com/golang/mock/gomock"
 
   "github.com/Liquid-Labs/lc-authentication-api/go/auth"
-  // . "github.com/Liquid-Labs/lc-entities-model/go/entities"
-  // . "github.com/Liquid-Labs/lc-locations-model/go/locations"
   authmock "github.com/Liquid-Labs/lc-authentication-api/go/mock"
   api "github.com/Liquid-Labs/lc-persons-api/go/persons"
-  //. "github.com/Liquid-Labs/lc-persons-model/go/persons"
   "github.com/Liquid-Labs/strkit/go/strkit"
   "github.com/Liquid-Labs/terror/go/terror"
 )
 
 func init() {
   terror.EchoErrorLog()
+}
+
+func joeBobJSON(authID string) []byte {
+  return []byte(`{
+    "authId": "` + authID + `",
+    "name": "Joe Bob",
+    "givenName": "Joe",
+    "familyName": "Bob",
+    "email": "jbob@foo.com",
+    "phone": "555-565-383",
+    "backupPhone": "555-384-2832",
+    "avatarUrl": "https://avatars.com/joeBob",
+    "addresses": [
+      {
+      "address1": "100 Main Str",
+      "city": "Anwhere",
+      "state": "TX",
+      "zip": "78383-4833",
+      "label": "home"
+    }]
+  }`)
 }
 
 func TestCreatePersonNoAuthentication(t *testing.T) {
@@ -50,45 +67,7 @@ func TestCreatePersonValid(t *testing.T) {
 
   ctx := auth.SetAuthOracleOnContext(authOracle, context.Background())
 
-
-  /*a1 := NewAddress(`Camelot`, `a house`, EID(``), false, `100 Main Str`, `#B`, `Paris`, `TX`, `78383`, EID(``), `home`)
-  as := Addresses{a1}
-  p := NewPerson(`Joe Bob`,
-    `A man`,
-    authID,
-    `444-53-3838`,
-    `SSN`,
-    true,
-    `Joe`,
-    `Bob`,
-    `jBob@test.com`,
-    `555-565-3838`,
-    ``,
-    `555-282-9878`,
-    `https://avatars.com/joeBob`,
-    as)
-  payload, err := json.Marshal(&p)
-  log.Printf("\n\n%s\n\n", payload)
-  if err != nil { t.Fatalf(`Failed to marshal test data: %s`, err) }*/
-
-  payload := []byte(`{
-  "authId": "` + authID + `",
-  "name": "Joe Bob",
-  "givenName": "Joe",
-  "familyName": "Bob",
-  "email": "jbob@foo.com",
-  "phone": "555-565-383",
-  "backupPhone": "555-384-2832",
-  "avatarUrl": "https://avatars.com/joeBob",
-  "addresses": [
-    {
-    "address1": "100 Main Str",
-    "city": "Anwhere",
-    "state": "TX",
-    "zip": "78383-4833",
-    "label": "home"
-  }]
-}`)
+  payload := joeBobJSON(authID)
 
 	req, err := http.NewRequest("POST", "/persons", bytes.NewBuffer(payload))
 	if err != nil { t.Fatal(err) }
