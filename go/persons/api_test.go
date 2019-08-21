@@ -5,7 +5,7 @@ import (
   "net/http/httptest"
   "testing"
 
-  api "github.com/Liquid-Labs/lc-persons-api/go/resources/persons"
+  api "github.com/Liquid-Labs/lc-persons-api/go/persons"
 )
 
 func TestCreatePersonNoAuthentication(t *testing.T) {
