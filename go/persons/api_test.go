@@ -54,8 +54,6 @@ func TestCreatePersonNoAuthentication(t *testing.T) {
 	}
 }
 
-// func TestCreatePersonAuthenticatedDifferentUser
-
 func TestCreatePersonValid(t *testing.T) {
   authID := strkit.RandString(strkit.LettersAndNumbers, 16)
 
@@ -79,6 +77,33 @@ func TestCreatePersonValid(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
+	}
+}
+
+func TestCreatePersonDifferentUser(t *testing.T) {
+  authID1 := strkit.RandString(strkit.LettersAndNumbers, 16)
+  authID2 := strkit.RandString(strkit.LettersAndNumbers, 16)
+
+  controller := NewController(t)
+  defer controller.Finish()
+  authOracle := authmock.NewMockAuthOracle(controller)
+  authOracle.EXPECT().GetAuthID().Return(authID1).AnyTimes()
+  authOracle.EXPECT().IsRequestAuthenticated().Return(true).AnyTimes()
+
+  ctx := auth.SetAuthOracleOnContext(authOracle, context.Background())
+
+  payload := joeBobJSON(authID2)
+
+	req, err := http.NewRequest("POST", "/persons", bytes.NewBuffer(payload))
+	if err != nil { t.Fatal(err) }
+  req = req.WithContext(ctx)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(api.CreateHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusForbidden {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusForbidden)
 	}
 }
 
