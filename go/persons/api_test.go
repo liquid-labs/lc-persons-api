@@ -80,7 +80,7 @@ func TestCreatePersonValid(t *testing.T) {
 	}
 }
 
-func TestCreatePersonDifferentUser(t *testing.T) {
+func TestCreatePersonNonSelf(t *testing.T) {
   authID1 := strkit.RandString(strkit.LettersAndNumbers, 16)
   authID2 := strkit.RandString(strkit.LettersAndNumbers, 16)
 
