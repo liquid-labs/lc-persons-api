@@ -21,7 +21,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (bool, string) {
   authenticator, authID, err := auth.CheckAuthentication(r.Context())
   if err != nil {
-    rest.HandleError(w, ServerError("Error checking authentication.", err))
+    rest.HandleError(w, err)
     return false, ``
   } else if !authenticator.IsRequestAuthenticated() {
     rest.HandleError(w, UnauthenticatedError("Request must be authenticated."))
@@ -29,7 +29,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (bool, string) 
   } else { return true, authID }
 }
 
-func createHandler(w http.ResponseWriter, r *http.Request) {
+func CreateHandler(w http.ResponseWriter, r *http.Request) {
   var person *model.Person = &model.Person{}
   ok, authID := checkAuthentication(w, r)
   if ok {
@@ -126,7 +126,7 @@ const personIdRe = `(?:` + uuidRe + `|self)`
 
 func InitAPI(r *mux.Router) {
   r.HandleFunc("/", pingHandler).Methods("PING")
-  r.HandleFunc("/persons/", createHandler).Methods("POST")
+  r.HandleFunc("/persons/", CreateHandler).Methods("POST")
   r.HandleFunc("/persons/", listHandler).Methods("GET")
   r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:" + uuidRe + "}/persons/", listHandler).Methods("GET")
   r.HandleFunc("/persons/{pubId:" + personIdRe + "}/", detailHandler).Methods("GET")
