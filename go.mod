@@ -1,19 +1,16 @@
-module github.com/Liquid-Labs/catalyst-persons-api
+module github.com/Liquid-Labs/lc-persons-api
 
 require (
-	github.com/Liquid-Labs/catalyst-core-api v1.0.0-prototype.15
-	github.com/Liquid-Labs/catalyst-firewrap v1.0.0-prototype.0
-	github.com/Liquid-Labs/go-api v1.0.0-protottype.0
-	github.com/Liquid-Labs/go-nullable-mysql v1.0.2
-	github.com/Liquid-Labs/go-rest v1.0.0-prototype.4
+	github.com/Liquid-Labs/catalyst-core-api v1.0.0-prototype.16
+	github.com/Liquid-Labs/go-rest v1.0.0-prototype.5
+	github.com/Liquid-Labs/lc-authentication-api v1.0.0-alpha.1
+	github.com/Liquid-Labs/lc-entities-model v1.0.0-alpha.1
+	github.com/Liquid-Labs/lc-locations-model v1.0.0-alpha.2
+	github.com/Liquid-Labs/lc-persons-model v1.0.0-alpha.2
+	github.com/Liquid-Labs/lc-rdb-service v1.0.0-alpha.2
+	github.com/Liquid-Labs/strkit v0.0.0-20190818184832-9e3e35dcfc9c
+	github.com/Liquid-Labs/terror v1.0.0-alpha.2
+	github.com/golang/mock v1.3.1
 	github.com/gorilla/mux v1.7.0
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 )
-
-// replace github.com/Liquid-Labs/catalyst-core-api => /Users/zane/playground/catalyst-core-api
-
-// replace github.com/Liquid-Labs/catalyst-firewrap => /Users/zane/playground/catalyst-firewrap
-
-// replace github.com/Liquid-Labs/go-api => /Users/zane/playground/go-api
-
-// replace github.com/Liquid-Labs/go-rest => /Users/zane/playground/go-rest
