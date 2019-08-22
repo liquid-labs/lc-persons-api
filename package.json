@@ -38,14 +38,14 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@liquid-labs/lc-persons-model": "^1.0.0-alpha.1"
+    "@liquid-labs/lc-persons-model": "^1.0.0-alpha.4"
   },
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "file:.yalc/@liquid-labs/catalyst-core-api",
-    "@liquid-labs/catalyst-scripts": "file:.yalc/@liquid-labs/catalyst-scripts",
+    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.16",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.24",
     "@liquid-labs/liquid-dev-cloudsql": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
-    "@liquid-labs/restful-paths": "^1.0.0-prototype.2",
+    "@liquid-labs/restful-paths": "^1.0.0-prototype.4",
     "lodash.omit": "^4.5.0",
     "lodash.reduce": "^4.6.0",
     "moment-timezone": "^0.5.23",
