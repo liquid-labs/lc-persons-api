@@ -36,7 +36,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-    if cErr := person.CreatePersonSelf(r.Context()); cErr != nil {
+    if cErr := person.CreateSelf(r.Context()); cErr != nil {
       rest.HandleError(w, ServerError("Could not create person.", cErr))
     } else {
       rest.StandardResponse(w, person, `Person created.`, nil)
@@ -44,7 +44,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func listHandler(w http.ResponseWriter, r *http.Request) {
+func ListHandler(w http.ResponseWriter, r *http.Request) {
   vars := mux.Vars(r)
   contextType := vars["contextType"]
 
@@ -60,23 +60,14 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func detailHandler(w http.ResponseWriter, r *http.Request) {
+func DetailHandler(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+  reqAuthID := vars["authID"]
+  pubID := vars["pubID"]
+
   ok, authID := requireAuthentication(w, r)
   if ok {
-    vars := mux.Vars(r)
-    reqAuthID := vars["authId"]
-    pubId := vars["pubId"]
-    if reqAuthID == `` {
-      if pubId != `self` {
-        rest.HandleError(w, ForbiddenError("May only request your own data. Try '/persons/self'. (1)"))
-        return
-      }
-    } else if reqAuthID != authID {
-      rest.HandleError(w, ForbiddenError("May only request your own data. Try '/persons/self'. (2)"))
-      return
-    }
-
-    if authID != `` {
+    if authID == reqAuthID || pubID == `self` {
       p, err := model.RetrievePersonSelf(rdb.ConnectWithContext(r.Context()))
       if (err != nil) {
         rest.HandleError(w, ServerError("Error retrieving person.", err))
@@ -84,14 +75,14 @@ func detailHandler(w http.ResponseWriter, r *http.Request) {
         rest.StandardResponse(w, p, `Person retrieved.`, nil)
       }
     } else {
-      // not currently used, but will do once general authorization system in place; at the moment we exit after checkAuthenticaiton
-      // handlers.DoGetDetail(w, r, GetPerson, pubId, `Person`)
+      // We do not currenty support non-self Person details
+      rest.HandleError(w, ForbiddenError("May only request your own data. Try '/persons/self'. (1)"))
       return
     }
   }
 }
 
-func updateHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateHandler(w http.ResponseWriter, r *http.Request) {
   ok, _ := requireAuthentication(w, r)
   if ok {
     newData := &model.Person{}
@@ -101,7 +92,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     vars := mux.Vars(r)
-    pubID := vars["pubId"]
+    pubID := vars["pubID"]
 
     if string(newData.ID) != pubID {
       rest.HandleError(w, ForbiddenError("You can only update your own data."))
@@ -123,10 +114,10 @@ const personIdRe = `(?:` + uuidRe + `|self)`
 func InitAPI(r *mux.Router) {
   r.HandleFunc("/", pingHandler).Methods("PING")
   r.HandleFunc("/persons/", CreateHandler).Methods("POST")
-  r.HandleFunc("/persons/", listHandler).Methods("GET")
-  r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:" + uuidRe + "}/persons/", listHandler).Methods("GET")
-  r.HandleFunc("/persons/{pubId:" + personIdRe + "}/", detailHandler).Methods("GET")
-  r.HandleFunc("/persons/{pubId:" + personIdRe + "}/", updateHandler).Methods("PUT")
+  r.HandleFunc("/persons/", ListHandler).Methods("GET")
+  r.HandleFunc("/{contextType:[a-z-]*[a-z]}/{contextId:" + uuidRe + "}/persons/", ListHandler).Methods("GET")
+  r.HandleFunc("/persons/{pubID:" + personIdRe + "}/", DetailHandler).Methods("GET")
+  r.HandleFunc("/persons/{pubID:" + personIdRe + "}/", UpdateHandler).Methods("PUT")
   // special auth-id fetcher
-  r.HandleFunc("/persons/auth-id-{authId}/", detailHandler).Methods("GET")
+  r.HandleFunc("/{foo:persons}/auth-id-{authID:.+}/", DetailHandler).Methods("GET")
 }
