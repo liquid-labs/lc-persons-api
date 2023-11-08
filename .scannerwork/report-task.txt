@@ -1,0 +1,7 @@
+organization=liquid-labs
+projectKey=Liquid-Labs_lc-persons-api
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.485
+dashboardUrl=https://sonarcloud.io/dashboard?id=Liquid-Labs_lc-persons-api
+ceTaskId=AWz44sqnkD1AMaJFKDLE
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWz44sqnkD1AMaJFKDLE
